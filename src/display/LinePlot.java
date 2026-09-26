@@ -21,6 +21,7 @@ public class LinePlot extends JPanel {
 		defaultPad = barPad;
 		
 		setPreferredSize(new Dimension(500, 450));
+		setMinimumSize(new Dimension(200, 200));
 		setOpaque(true);
 	}
 	

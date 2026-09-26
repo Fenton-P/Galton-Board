@@ -22,12 +22,13 @@ public class SimulationPanel extends JPanel {
 		this.board = board;
 		this.visualization = visualization;
 		
-		inputPanel = new InputPanel(board, visualization);
+		inputPanel = new InputPanel(this);
 		
 		JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, visualization, inputPanel);
 		splitPanel.setContinuousLayout(true);
 		
-		this.add(splitPanel);
+		this.setLayout(new BorderLayout());
+		this.add(splitPanel, BorderLayout.CENTER);
 		
 		this.setOpaque(true);
 	}
@@ -61,5 +62,28 @@ public class SimulationPanel extends JPanel {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void setBoard(GaltonBoard b) {
+		board = b;
+	}
+	
+	public void setGraph(LinePlot l) {
+		visualization = l;
+	}
+	/*
+	 * "Enter Batch Size: ",
+									 "Enter Bin Count: ",
+									 "Enter Bias Jump: ",
+									 "Enter Bias Adjustment: ",
+									 "Enter General Drift: ",
+									 "Enter Bias Clamp: ",
+									 "Enter Graph Start: ",
+									 "Enter Graph End: ",
+									 "Enter Batch Count: ",
+									 "Enter Mode: "};*/
+	public int[] getBoardInfo() {
+		return new int[] {};
+		//return new int[] {tempBatchSize, bins.length, board.getBiasJump(), board.get)};
 	}
 }
