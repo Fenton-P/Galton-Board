@@ -8,19 +8,19 @@ public class Driver {
 
 	public static void main(String[] args) {
 		JFrame mainFrame = new JFrame("Galton Board Simulation");
-		LinePlot visualization = new LinePlot(0,20);
+		LinePlot visualization = new LinePlot(0,10);
+		GaltonBoard board = new GaltonBoard();
 		
-		mainFrame.add(visualization);
+		SimulationPanel simulationPanel = new SimulationPanel(board, visualization);
+		simulationPanel.initBoardStats(10);
+		
+		mainFrame.add(simulationPanel);
 		mainFrame.pack();
 		
 		mainFrame.setLocationRelativeTo(null);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setVisible(true);
 		
-		GaltonBoard board = new GaltonBoard();
-		int[] bins = board.runBatch(10000, new int[20]);
-		
-		visualization.updateComponent(bins);
+		simulationPanel.runBatches(1000, 100, 40);
 	}
-
 }

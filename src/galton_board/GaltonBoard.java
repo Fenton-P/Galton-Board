@@ -10,7 +10,7 @@ public class GaltonBoard {
 	private double biasJump, adj, drift, clamp;
 	
 	public GaltonBoard() {
-		this(0.5, 0.05, 0, .5);
+		this(0.5, 0.1, 0, .5);
 	}
 	
 	public GaltonBoard(double biasJump, double adjustment, double drift, double clamp) {
