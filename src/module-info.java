@@ -1,8 +1,0 @@
-/**
- * 
- */
-/**
- * 
- */
-module galton_board {
-}
