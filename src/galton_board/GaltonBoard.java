@@ -10,7 +10,7 @@ public class GaltonBoard {
 	private double biasJump, adj, drift, clamp;
 	
 	public GaltonBoard() {
-		this(0.1, 0.01, 0, .5);
+		this(0.0, 0.00, 0, .5);
 	}
 	
 	public GaltonBoard(double biasJump, double adjustment, double drift, double clamp) {
@@ -20,8 +20,8 @@ public class GaltonBoard {
 		this.clamp = clamp;
 	}
 		
-	public void runBatch(int batchSize, int[] bins) {
-		bins = simulateBoard(batchSize, bins);
+	public int[] runBatch(int batchSize, int[] bins) {
+		return simulateBoard(batchSize, bins);
 	}
 	
 	private int[] simulateBoard(int balls, int[] bins) {
@@ -60,7 +60,7 @@ public class GaltonBoard {
 			bias -= adj * mult;
 			
 			if (prev != dir) {
-				bias = NORMAL + biasJump * mult;
+				bias = base - biasJump * mult;
 				prev = dir;
 			}
 			
