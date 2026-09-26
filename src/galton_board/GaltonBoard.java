@@ -69,4 +69,20 @@ public class GaltonBoard {
 		
 		return pos;
 	}
+	
+	public double getBiasJump() {
+		return biasJump;
+	}
+	
+	public double getBiasAdj() {
+		return adj;
+	}
+	
+	public double getDrift() {
+		return drift;
+	}
+	
+	public double getClamp() {
+		return clamp;
+	}
 }

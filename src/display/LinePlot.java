@@ -94,4 +94,21 @@ public class LinePlot extends JPanel {
 	public boolean validate(int[] bins) {
 		return bins != null && bins.length >= max;
 	}
+	
+	public int getStart() {
+		return min;
+	}
+	
+	public int getEnd() {
+		return max;
+	}
+	
+	public void setTo(LinePlot l) {
+		min = l.min;
+		max = l.max;
+		padding = l.padding;
+		markCnt = l.markCnt;
+		barPad = l.barPad;
+		defaultPad = l.defaultPad;
+	}
 }

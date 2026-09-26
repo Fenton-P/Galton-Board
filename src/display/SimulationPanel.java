@@ -35,6 +35,8 @@ public class SimulationPanel extends JPanel {
 	
 	public void initBoardStats(int height) {
 		bins = new int[height];
+		
+		inputPanel.initInputPanel();
 	}
 	
 	public void runBatch(int batchSize) {
@@ -47,12 +49,15 @@ public class SimulationPanel extends JPanel {
 		batchCount = cnt;
 		batchDelay = delay;
 		
+		if(batchThread != null) return;
+		
 		batchThread = new Thread(this::batchRunner);
 		batchThread.start();
 	}
 	
 	private void batchRunner() {
 		for(int i = 0;i < batchCount && batchThread != null;i++) {
+			System.out.println("BATCH");
 			runBatch(tempBatchSize);
 			
 			try {
@@ -62,6 +67,8 @@ public class SimulationPanel extends JPanel {
 				e.printStackTrace();
 			}
 		}
+		
+		batchThread = null;
 	}
 	
 	public void setBoard(GaltonBoard b) {
@@ -69,21 +76,27 @@ public class SimulationPanel extends JPanel {
 	}
 	
 	public void setGraph(LinePlot l) {
-		visualization = l;
+		visualization.setTo(l);
 	}
-	/*
-	 * "Enter Batch Size: ",
-									 "Enter Bin Count: ",
-									 "Enter Bias Jump: ",
-									 "Enter Bias Adjustment: ",
-									 "Enter General Drift: ",
-									 "Enter Bias Clamp: ",
-									 "Enter Graph Start: ",
-									 "Enter Graph End: ",
-									 "Enter Batch Count: ",
-									 "Enter Mode: "};*/
-	public int[] getBoardInfo() {
-		return new int[] {};
-		//return new int[] {tempBatchSize, bins.length, board.getBiasJump(), board.get)};
+	
+	public String[] getBoardInfo() {
+		if(bins == null) return new String[9];
+		return new String[] { tempBatchSize + "", 
+					          bins.length + "",
+					          board.getBiasJump() + "",
+					          board.getBiasAdj() + "",
+					          board.getDrift() + "",
+					          board.getClamp() + "",
+					          visualization.getStart() + "",
+					          visualization.getEnd() + "",
+					          batchCount + "" };
+	}
+	
+	public void setBins(int cnt) {
+		bins = new int[cnt];
+	}
+	
+	public void runAWSBatches(int batchSize, int count) {
+		
 	}
 }

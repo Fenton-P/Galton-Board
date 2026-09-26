@@ -27,12 +27,15 @@ public class InputPanel extends JPanel {
 		this.sim = sim;
 		inputInfo = new String[inputs.length];
 		
-		int[] boardInfo = sim.getBoardInfo();
-		
 		setPreferredSize(new Dimension(300, 450));
-		setMinimumSize(new Dimension(200, 200));
+		setMinimumSize(new Dimension(150, 200));
 		
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+	}
+	
+	public void initInputPanel() {
+		System.arraycopy(sim.getBoardInfo(), 0, inputInfo, 0, inputs.length - 1);
+		inputInfo[9] = "CPU";
 		
 		addPanelStructure();
 	}
@@ -61,13 +64,21 @@ public class InputPanel extends JPanel {
 			int    beg = Integer.parseInt(inputInfo[6]),
 				   end = Integer.parseInt(inputInfo[7]),
 				   cnt = Integer.parseInt(inputInfo[8]),
-				   sze = Integer.parseInt(inputInfo[0]);
+				   sze = Integer.parseInt(inputInfo[0]),
+				   bin = Integer.parseInt(inputInfo[1]);
 			String mde = inputInfo[9];
 			
 			sim.setBoard(new GaltonBoard(jmp, adj, dft, cmp));
 			sim.setGraph(new LinePlot(beg, end));
+			sim.setBins(bin);
 			
-			sim.runBatches(sze, cnt, 100);
+			switch(mde) {
+			case "CPU":
+				sim.runBatches(sze, cnt, 100);
+				break;
+			case "AWS":
+				sim.runAWSBatches(sze, cnt);
+			}
 		});
 	}
 }
