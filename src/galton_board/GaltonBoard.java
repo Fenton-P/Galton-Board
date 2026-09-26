@@ -5,22 +5,32 @@ import java.util.Random;
 public class GaltonBoard {
 	private enum Direction { LEFT, RIGHT, NONE };
 	
-	private final int HEIGHT;
 	private final double NORMAL = .5;
 	private Random rng;
 	private double biasJump, adj, drift, clamp;
 	
-	public GaltonBoard(int height) {
-		HEIGHT = height;
+	public GaltonBoard() {
+		this(0.1, 0.01, 0, .5);
 	}
 	
-	public void runBatch(int batchSize) {
-		simulateBoard(batchSize, HEIGHT);
+	public GaltonBoard(double biasJump, double adjustment, double drift, double clamp) {
+		this.biasJump = biasJump;
+		adj = adjustment;
+		this.drift = drift;
+		this.clamp = clamp;
+	}
+		
+	public void runBatch(int batchSize, int[] bins) {
+		bins = simulateBoard(batchSize, bins);
 	}
 	
-	private int[] simulateBoard(int balls, int height) {
-		int[] bins = new int[height + 1];
+	private int[] simulateBoard(int balls, int[] bins) {
 		rng = new Random();
+		
+		for(int i = 0; i < balls; i++) {
+			int pos = simulateBall(bins.length - 1);
+			bins[pos]++;
+		}
 		
 		return bins;
 	}
