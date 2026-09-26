@@ -2,6 +2,8 @@ package galton_board;
 
 import java.util.Random;
 
+import aws.Input;
+
 public class GaltonBoard {
 	private enum Direction { LEFT, RIGHT, NONE };
 	
@@ -18,6 +20,8 @@ public class GaltonBoard {
 		adj = adjustment;
 		this.drift = drift;
 		this.clamp = clamp;
+		
+		rng = new Random();
 	}
 		
 	public int[] runBatch(int batchSize, int[] bins) {
@@ -25,8 +29,6 @@ public class GaltonBoard {
 	}
 	
 	private int[] simulateBoard(int balls, int[] bins) {
-		rng = new Random();
-		
 		for(int i = 0; i < balls; i++) {
 			int pos = simulateBall(bins.length - 1);
 			bins[pos]++;
@@ -84,5 +86,11 @@ public class GaltonBoard {
 	
 	public double getClamp() {
 		return clamp;
+	}
+	
+	public static int[] runBatchAWS(Input in) {
+		GaltonBoard board = new GaltonBoard(in.biasJump, in.adj, in.drift, in.clamp);
+		
+		return board.runBatch(in.balls, in.bins);
 	}
 }
