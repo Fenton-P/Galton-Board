@@ -1,6 +1,8 @@
 package display;
 
-import javax.swing.JPanel;
+import java.awt.*;
+
+import javax.swing.*;
 
 import galton_board.GaltonBoard;
 
@@ -9,6 +11,7 @@ public class SimulationPanel extends JPanel {
 
 	private GaltonBoard board;
 	private LinePlot visualization;
+	private InputPanel inputPanel;
 	private int[] bins;
 	
 	private Thread batchThread;
@@ -19,7 +22,13 @@ public class SimulationPanel extends JPanel {
 		this.board = board;
 		this.visualization = visualization;
 		
-		this.add(visualization);
+		inputPanel = new InputPanel(board, visualization);
+		
+		JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, visualization, inputPanel);
+		splitPanel.setContinuousLayout(true);
+		
+		this.add(splitPanel);
+		
 		this.setOpaque(true);
 	}
 	
