@@ -62,7 +62,6 @@ public class LinePlot extends JPanel {
 			double percentage = currData[i + min] / (double) sum;
 			int barHeight = (int) (percentage * (height - padding * 2));
 			
-			System.out.println(currData[i + min]);
 			paint.fillRect(padding + i * sectionWidth + barPad, height - barHeight - padding, sectionWidth - barPad * 2, barHeight);
 		}
 	}

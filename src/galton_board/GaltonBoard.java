@@ -10,7 +10,7 @@ public class GaltonBoard {
 	private double biasJump, adj, drift, clamp;
 	
 	public GaltonBoard() {
-		this(0.0, 0.00, 0, .5);
+		this(0.5, 0.05, 0, .5);
 	}
 	
 	public GaltonBoard(double biasJump, double adjustment, double drift, double clamp) {
@@ -53,14 +53,13 @@ public class GaltonBoard {
 		int pos = 0;
 		double bias = 0, base = NORMAL - drift;
 		
-		
 		for (int i = 0; i < height; i++) {
 			Direction dir = (rng.nextDouble() + bias < base) ? Direction.LEFT : Direction.RIGHT;
 			int mult = dir == Direction.RIGHT ? 1 : -1;
 			bias -= adj * mult;
 			
 			if (prev != dir) {
-				bias = base - biasJump * mult;
+				bias = biasJump * mult;
 				prev = dir;
 			}
 			
