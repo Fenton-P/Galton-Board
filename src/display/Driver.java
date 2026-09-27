@@ -20,7 +20,5 @@ public class Driver {
 		mainFrame.setLocationRelativeTo(null);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setVisible(true);
-		
-		simulationPanel.runBatches(1000, 100, 40);
 	}
 }

@@ -1,9 +1,11 @@
 package display;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 
 import javax.swing.*;
 
+import galton_board.Request;
 import galton_board.GaltonBoard;
 
 public class InputPanel extends JPanel {
@@ -20,8 +22,10 @@ public class InputPanel extends JPanel {
 									 "Enter Graph Start: ",
 									 "Enter Graph End: ",
 									 "Enter Batch Count: ",
-									 "Enter Mode: "};
+									 "Enter Mode: ",
+									 "Enter CPU Delay: "};
 	private String[] inputInfo;
+	private TextInputPanel[] inputPanels;
 	
 	public InputPanel(SimulationPanel sim) {
 		this.sim = sim;
@@ -41,7 +45,7 @@ public class InputPanel extends JPanel {
 	}
 	
 	private void addPanelStructure() {
-		TextInputPanel[] inputPanels = new TextInputPanel[inputs.length];
+		inputPanels = new TextInputPanel[inputs.length];
 		
 		for(int i = 0;i < inputs.length;i++) {
 			inputPanels[i] = new TextInputPanel(inputs[i], inputInfo[i]);
@@ -52,33 +56,32 @@ public class InputPanel extends JPanel {
 		update.setSize(new Dimension(150, 75));
 		add(update);
 		
-		update.addActionListener(e -> {
-			for(int i = 0;i<inputs.length;i++) {
-				inputInfo[i] = inputPanels[i].getText();
-			}
-			
-			double jmp = Double.parseDouble(inputInfo[2]),
-				   adj = Double.parseDouble(inputInfo[3]),
-				   dft = Double.parseDouble(inputInfo[4]),
-				   cmp = Double.parseDouble(inputInfo[5]);
-			int    beg = Integer.parseInt(inputInfo[6]),
-				   end = Integer.parseInt(inputInfo[7]),
-				   cnt = Integer.parseInt(inputInfo[8]),
-				   sze = Integer.parseInt(inputInfo[0]),
-				   bin = Integer.parseInt(inputInfo[1]);
-			String mde = inputInfo[9];
-			
-			sim.setBoard(new GaltonBoard(jmp, adj, dft, cmp));
-			sim.setGraph(new LinePlot(beg, end));
-			sim.setBins(bin);
-			
-			switch(mde) {
-			case "CPU":
-				sim.runBatches(sze, cnt, 100);
-				break;
-			case "AWS":
-				sim.runAWSBatches(sze, cnt);
-			}
-		});
+		update.addActionListener(this::handleClick);
+	}
+	
+	private void updateInputInfo() {
+		for(int i = 0; i < inputInfo.length; i++) {
+			inputInfo[i] = inputPanels[i].getText();
+		}
+	}
+	
+	private void handleClick(ActionEvent e) {
+		updateInputInfo();
+		
+		Request req = Request.parseRequest(inputInfo);
+		
+		sim.runBatch(req);
+		
+//		sim.setBoard(new GaltonBoard(jmp, adj, dft, cmp));
+//		sim.setGraph(new LinePlot(beg, end));
+//		sim.setBins(bin);
+//		
+//		switch(mde) {
+//		case "CPU":
+//			sim.runBatches(sze, cnt, 100);
+//			break;
+//		case "AWS":
+//			sim.runAWSBatches(sze, cnt);
+//		}
 	}
 }

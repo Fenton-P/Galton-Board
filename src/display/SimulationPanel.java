@@ -1,11 +1,8 @@
 package display;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.*;
+import java.util.concurrent.*;
 
 import javax.swing.*;
 
@@ -20,7 +17,7 @@ import software.amazon.awssdk.services.lambda.model.InvokeRequest;
 import software.amazon.awssdk.services.lambda.model.InvokeResponse;
 
 import aws.Input;
-import galton_board.GaltonBoard;
+import galton_board.*;
 
 public class SimulationPanel extends JPanel {
 	private static final long serialVersionUID = -2346382374587904033L;
@@ -30,6 +27,7 @@ public class SimulationPanel extends JPanel {
 	private InputPanel inputPanel;
 	private int[] bins;
 	
+	private RequestHandler batchHandler;
 	private Thread batchThread;
 	private int tempBatchSize, batchCount;
 	private long batchDelay;
@@ -39,6 +37,7 @@ public class SimulationPanel extends JPanel {
 		this.visualization = visualization;
 		
 		inputPanel = new InputPanel(this);
+		batchHandler = new RequestHandler(board);
 		
 		JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, visualization, inputPanel);
 		splitPanel.setContinuousLayout(true);
@@ -55,9 +54,15 @@ public class SimulationPanel extends JPanel {
 		inputPanel.initInputPanel();
 	}
 	
-	public void runBatch(int batchSize) {
+	public int[] runBatch(int batchSize, int[] bins) {
 		bins = board.runBatch(batchSize, bins);
 		visualization.updateComponent(bins);
+		
+		return bins;
+	}
+	
+	public void runBatch(Request batchReq) {
+		batchHandler.handleRequest(batchReq);
 	}
 	
 	public void runBatches(int batchSize, int cnt, long delay) {
@@ -65,26 +70,32 @@ public class SimulationPanel extends JPanel {
 		batchCount = cnt;
 		batchDelay = delay;
 		
-		if(batchThread != null) return;
+		if (batchThread != null) {
+			batchThread.interrupt();
+		}
 		
 		batchThread = new Thread(this::batchRunner);
 		batchThread.start();
 	}
 	
+	private boolean checkThread(Thread thread) {
+		return thread == null || thread.isInterrupted();
+	}
+	
 	private void batchRunner() {
-		for(int i = 0;i < batchCount && batchThread != null;i++) {
-			System.out.println("BATCH");
-			runBatch(tempBatchSize);
-			
-			try {
-				Thread.sleep(batchDelay);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		synchronized (batchThread) {
+			for (int i = 0; i < batchCount && !checkThread(batchThread); i++) {
+				runBatch(tempBatchSize);
+				
+				try {
+					Thread.sleep(batchDelay);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
+			
+			batchThread = null;
 		}
-		
-		batchThread = null;
 	}
 	
 	public void setBoard(GaltonBoard b) {

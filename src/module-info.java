@@ -1,9 +1,3 @@
-/**
- * 
- */
-/**
- * 
- */
 module galton_board {
 	requires java.desktop;
 	requires aws.lambda.java.core;
