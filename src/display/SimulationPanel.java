@@ -27,7 +27,7 @@ public class SimulationPanel extends JPanel {
 	private InputPanel inputPanel;
 	private int[] bins;
 	
-	private RequestHandler batchHandler;
+	private RequestHandler requestHandler;
 	private int tempBatchSize, batchCount;
 
 	public SimulationPanel(GaltonBoard board, LinePlot visualization) {
@@ -35,7 +35,7 @@ public class SimulationPanel extends JPanel {
 		this.visualization = visualization;
 		
 		inputPanel = new InputPanel(this);
-		batchHandler = new RequestHandler(this);
+		requestHandler = new RequestHandler(this);
 		
 		JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, visualization, inputPanel);
 		splitPanel.setContinuousLayout(true);
@@ -52,15 +52,8 @@ public class SimulationPanel extends JPanel {
 		inputPanel.initInputPanel();
 	}
 	
-	public int[] runBatch(int batchSize, int[] bins) {
-		bins = board.runBatch(batchSize, bins);
-		visualization.updateComponent(bins);
-		
-		return bins;
-	}
-	
 	public void runBatch(Request batchReq) {
-		batchHandler.handleRequest(batchReq, this::initNewView, this::updateView);
+		requestHandler.handleRequest(batchReq, this::initNewView, this::updateView);
 	}
 	
 	private void initNewView(Request req) {
@@ -70,12 +63,8 @@ public class SimulationPanel extends JPanel {
 		setBins(req.bin);
 	}
 	
-	private int[] updateView(int count, int[] bins) {
-		runBatch(count, bins);
-		
+	private void updateView(int[] bins) {
 		visualization.updateComponent(bins);
-		
-		return bins;
 	}
 	
 	public void setBoard(GaltonBoard b) {
@@ -99,63 +88,11 @@ public class SimulationPanel extends JPanel {
 					          batchCount + "" };
 	}
 	
+	public GaltonBoard getBoard() {
+		return board;
+	}
+	
 	public void setBins(int cnt) {
 		bins = new int[cnt];
-	}
-	
-	public void runAWSBatches(int batchSize, int count) {
-		Thread awsThread = new Thread(() -> runAWSAux(batchSize, count));
-		awsThread.start();
-	}
-	
-	private void runAWSAux(int batchSize, int count) {
-		Input in = board.getInput(batchSize, bins.length);
-		ObjectMapper mapper = new ObjectMapper();
-		String json = "";
-		
-		try {
-			json = mapper.writeValueAsString(in);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		LambdaClient client = LambdaClient.builder()
-			    .region(Region.US_EAST_2)
-			    .httpClientBuilder(UrlConnectionHttpClient.builder())
-			    .build();
-		
-		InvokeRequest req = InvokeRequest.builder()
-			    .functionName("runGaltonBoardBatch")
-			    .payload(SdkBytes.fromUtf8String(json))
-			    .build();
-		
-		ExecutorService exec = Executors.newVirtualThreadPerTaskExecutor();
-		ArrayList<Future<int[]>> futures = new ArrayList<>();
-		
-		for(int i = 0;i<count;i++) {
-			futures.add(exec.submit(() -> {
-		        InvokeResponse res = client.invoke(req);
-		        String responseJson = res.payload().asUtf8String();
-		        return mapper.readValue(responseJson, int[].class);
-		    }));
-		}
-		
-		int[] newBins = new int[bins.length];
-		
-		for(Future<int[]> f : futures) {
-			try {
-				int[] bin =  f.get();
-				for(int i = 0;i<newBins.length;i++) {
-					newBins[i] += bin[i];
-				}
-			} catch (InterruptedException | ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		bins = newBins;
-		visualization.updateComponent(bins);
 	}
 }

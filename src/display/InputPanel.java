@@ -72,17 +72,5 @@ public class InputPanel extends JPanel {
 		Request req = Request.parseRequest(inputInfo);
 		
 		sim.runBatch(req);
-		
-//		sim.setBoard(new GaltonBoard(jmp, adj, dft, cmp));
-//		sim.setGraph(new LinePlot(beg, end));
-//		sim.setBins(bin);
-//		
-//		switch(mde) {
-//		case "CPU":
-//			sim.runBatches(sze, cnt, 100);
-//			break;
-//		case "AWS":
-//			sim.runAWSBatches(sze, cnt);
-//		}
 	}
 }

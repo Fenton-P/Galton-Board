@@ -1,5 +1,7 @@
 package galton_board;
 
+import aws.Input;
+
 public class Request {
 	public int beg, end, cnt, sze, bin;
 	public double jmp, adj, dft, cmp;
@@ -42,5 +44,18 @@ public class Request {
 		}
 		
 		return true;
+	}
+	
+	public Input getInput() {
+		Input in = new Input();
+		
+		in.biasJump = jmp;
+		in.adj = adj;
+		in.drift = dft;
+		in.clamp = cmp;
+		in.bins = bin;
+		in.balls = sze;
+		
+		return in;
 	}
 }
