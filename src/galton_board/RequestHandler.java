@@ -7,6 +7,7 @@ public class RequestHandler {
 	private Thread requestThread;
 	private Request currRequest, nextRequest;
 	private RequestResponse onComplete, onCompleteNext;
+	private RequestStart onStart, onStartNext;
 	
 	public RequestHandler(SimulationPanel sim) {
 		simulation = sim;
@@ -22,9 +23,10 @@ public class RequestHandler {
 	 * key it will then set the re
 	 * 
 	 * */
-	public void handleRequest(Request req, RequestResponse onComplete) {
+	public void handleRequest(Request req, RequestStart onStart, RequestResponse runBatcb) {
 		nextRequest = req;
 		onCompleteNext = onComplete;
+		onStartNext = onStart;
 		
 		if (requestThread == null) {
 			requestThread = new Thread(this::handleRequests);
@@ -36,15 +38,14 @@ public class RequestHandler {
 		while (nextRequest != null) {
 			currRequest = nextRequest;
 			onComplete = onCompleteNext;
+			onStart = onStartNext;
 			nextRequest = null;
 			onCompleteNext = null;
+			onStartNext = null;
 			
 			
 			synchronized (simulation) {
-				simulation.setBoard(new GaltonBoard(currRequest.jmp, currRequest.adj,
-						 							currRequest.dft, currRequest.cmp));
-				simulation.setGraph(new LinePlot(currRequest.beg, currRequest.end));
-				simulation.setBins(currRequest.bin);
+				onStart.onStart(currRequest);
 				
 				makeRequest();
 			}
@@ -67,9 +68,8 @@ public class RequestHandler {
 			if (Thread.interrupted()) {
 				return;
 			}
-			
-			bins = simulation.runBatch(req.sze, bins);
-			onComplete.response(bins);
+	
+			onComplete.runBatch(req.sze, bins);
 			
 			try {
 				Thread.sleep(req.dur);

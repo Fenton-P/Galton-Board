@@ -28,16 +28,14 @@ public class SimulationPanel extends JPanel {
 	private int[] bins;
 	
 	private RequestHandler batchHandler;
-	private Thread batchThread;
 	private int tempBatchSize, batchCount;
-	private long batchDelay;
 
 	public SimulationPanel(GaltonBoard board, LinePlot visualization) {
 		this.board = board;
 		this.visualization = visualization;
 		
 		inputPanel = new InputPanel(this);
-		batchHandler = new RequestHandler(board);
+		batchHandler = new RequestHandler(this);
 		
 		JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, visualization, inputPanel);
 		splitPanel.setContinuousLayout(true);
@@ -62,40 +60,18 @@ public class SimulationPanel extends JPanel {
 	}
 	
 	public void runBatch(Request batchReq) {
-		batchHandler.handleRequest(batchReq);
+		batchHandler.handleRequest(batchReq, this::initNewView, this::updateView);
 	}
 	
-	public void runBatches(int batchSize, int cnt, long delay) {
-		tempBatchSize = batchSize;
-		batchCount = cnt;
-		batchDelay = delay;
-		
-		if (batchThread != null) {
-			batchThread.interrupt();
-		}
-		
-		batchThread = new Thread(this::batchRunner);
-		batchThread.start();
+	private void initNewView(Request req) {
+		setBoard(new GaltonBoard(req.jmp, req.adj,
+								 req.dft, req.cmp));
+		setGraph(new LinePlot(req.beg, req.end));
+		setBins(req.bin);
 	}
 	
-	private boolean checkThread(Thread thread) {
-		return thread == null || thread.isInterrupted();
-	}
-	
-	private void batchRunner() {
-		synchronized (batchThread) {
-			for (int i = 0; i < batchCount && !checkThread(batchThread); i++) {
-				runBatch(tempBatchSize);
-				
-				try {
-					Thread.sleep(batchDelay);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			batchThread = null;
-		}
+	private void updateView(int count, int[] bins) {
+		bins.
 	}
 	
 	public void setBoard(GaltonBoard b) {
