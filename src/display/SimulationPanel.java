@@ -1,6 +1,11 @@
 package display;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.swing.*;
 
@@ -108,6 +113,11 @@ public class SimulationPanel extends JPanel {
 	}
 	
 	public void runAWSBatches(int batchSize, int count) {
+		Thread awsThread = new Thread(() -> runAWSAux(batchSize, count));
+		awsThread.start();
+	}
+	
+	private void runAWSAux(int batchSize, int count) {
 		Input in = board.getInput(batchSize, bins);
 		ObjectMapper mapper = new ObjectMapper();
 		String json = "";
@@ -129,17 +139,29 @@ public class SimulationPanel extends JPanel {
 			    .payload(SdkBytes.fromUtf8String(json))
 			    .build();
 		
-		InvokeResponse res = client.invoke(req);
-		String responseJson = res.payload().asUtf8String();
+		ExecutorService exec = Executors.newVirtualThreadPerTaskExecutor();
+		ArrayList<Future<int[]>> futures = new ArrayList<>();
 		
-		System.out.println(responseJson);
+		for(int i = 0;i<count;i++) {
+			futures.add(exec.submit(() -> {
+		        InvokeResponse res = client.invoke(req);
+		        String responseJson = res.payload().asUtf8String();
+		        return mapper.readValue(responseJson, int[].class);
+		    }));
+		}
 		
-		int[] newBins = null;
-		try {
-		    newBins = mapper.readValue(responseJson, int[].class);
-		} catch (Exception e) {
-		    e.printStackTrace();
-		    return;
+		int[] newBins = new int[bins.length];
+		
+		for(Future<int[]> f : futures) {
+			try {
+				int[] bin =  f.get();
+				for(int i = 0;i<newBins.length;i++) {
+					newBins[i] += bin[i];
+				}
+			} catch (InterruptedException | ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		bins = newBins;
