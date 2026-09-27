@@ -38,7 +38,8 @@ public class InputPanel extends JPanel {
 	}
 	
 	public void initInputPanel() {
-		System.arraycopy(sim.getBoardInfo(), 0, inputInfo, 0, inputs.length - 1);
+		String[] info = sim.getBoardInfo();
+		System.arraycopy(info, 0, inputInfo, 0, info.length);
 		inputInfo[9] = "CPU";
 		
 		addPanelStructure();

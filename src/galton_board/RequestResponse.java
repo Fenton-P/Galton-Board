@@ -2,5 +2,5 @@ package galton_board;
 
 @FunctionalInterface
 public interface RequestResponse {
-	public void runBatch(int count, int[] bins);
+	public int[] runBatch(int count, int[] bins);
 }

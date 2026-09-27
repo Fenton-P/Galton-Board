@@ -23,14 +23,16 @@ public class RequestHandler {
 	 * key it will then set the re
 	 * 
 	 * */
-	public void handleRequest(Request req, RequestStart onStart, RequestResponse runBatcb) {
+	public void handleRequest(Request req, RequestStart onStart, RequestResponse runBatch) {
 		nextRequest = req;
-		onCompleteNext = onComplete;
+		onCompleteNext = runBatch;
 		onStartNext = onStart;
 		
 		if (requestThread == null) {
 			requestThread = new Thread(this::handleRequests);
 			requestThread.start();
+		} else {
+			requestThread.interrupt();
 		}
 	}
 	
@@ -68,13 +70,13 @@ public class RequestHandler {
 			if (Thread.interrupted()) {
 				return;
 			}
-	
-			onComplete.runBatch(req.sze, bins);
+			
+			bins = onComplete.runBatch(req.sze, bins);
 			
 			try {
 				Thread.sleep(req.dur);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				return;
 			}
 		}
 	}

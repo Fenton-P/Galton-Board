@@ -70,8 +70,12 @@ public class SimulationPanel extends JPanel {
 		setBins(req.bin);
 	}
 	
-	private void updateView(int count, int[] bins) {
-		bins.
+	private int[] updateView(int count, int[] bins) {
+		runBatch(count, bins);
+		
+		visualization.updateComponent(bins);
+		
+		return bins;
 	}
 	
 	public void setBoard(GaltonBoard b) {
