@@ -91,10 +91,10 @@ public class GaltonBoard {
 	public static int[] runBatchAWS(Input in) {
 		GaltonBoard board = new GaltonBoard(in.biasJump, in.adj, in.drift, in.clamp);
 		
-		return board.runBatch(in.balls, in.bins);
+		return board.runBatch(in.balls, new int[in.bins]);
 	}
 	
-	public Input getInput(int batchSize, int[] bins) {
+	public Input getInput(int batchSize, int bins) {
 		Input in = new Input();
 		
 		in.adj = adj;

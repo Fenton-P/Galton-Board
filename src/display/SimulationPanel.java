@@ -118,7 +118,7 @@ public class SimulationPanel extends JPanel {
 	}
 	
 	private void runAWSAux(int batchSize, int count) {
-		Input in = board.getInput(batchSize, bins);
+		Input in = board.getInput(batchSize, bins.length);
 		ObjectMapper mapper = new ObjectMapper();
 		String json = "";
 		
