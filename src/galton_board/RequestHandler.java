@@ -1,10 +1,8 @@
 package galton_board;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -126,30 +124,35 @@ public class RequestHandler {
 			    .payload(SdkBytes.fromUtf8String(json))
 			    .build();
 		
-		ExecutorService exec = Executors.newVirtualThreadPerTaskExecutor();
-		ArrayList<Future<int[]>> futures = new ArrayList<>();
+		ArrayList<CompletableFuture<Void>> futures = new ArrayList<>();
+		
+		AtomicIntegerArray bins = new AtomicIntegerArray(req.bin);
 		
 		for(int i = 0;i<req.cnt;i++) {
-			futures.add(exec.submit(() -> {
+			futures.add(CompletableFuture.runAsync(() -> {
 		        InvokeResponse res = client.invoke(lambdaRequest);
 		        String responseJson = res.payload().asUtf8String();
-		        return mapper.readValue(responseJson, int[].class);
+		        int[] bin;
+				try {
+					bin = mapper.readValue(responseJson, int[].class);
+				} catch (JsonProcessingException e) {
+					return;
+				}
+
+		        for (int j = 0; j < bin.length; j++) {
+		            bins.addAndGet(j, bin[j]);
+		        }
 		    }));
 		}
 		
-		int[] bins = new int[req.bin];
+		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 		
-		for(Future<int[]> f : futures) {
-			try {
-				int[] bin =  f.get();
-				for(int i = 0;i<bins.length;i++) {
-					bins[i] += bin[i];
-				}
-			} catch (InterruptedException | ExecutionException e) {
-				return;
-			}
+		int[] finalBins = new int[bins.length()];
+		
+		for (int i = 0; i < bins.length(); i++) {
+		    finalBins[i] = bins.get(i);
 		}
-		
-		onComplete.update(bins);
+
+		onComplete.update(finalBins);
 	}
 }

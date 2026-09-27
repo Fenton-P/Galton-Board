@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.*;
 
 import galton_board.Request;
-import galton_board.GaltonBoard;
 
 public class InputPanel extends JPanel {
 	private static final long serialVersionUID = 4084662184640270100L;

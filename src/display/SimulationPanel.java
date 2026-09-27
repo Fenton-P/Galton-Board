@@ -1,22 +1,9 @@
 package display;
 
 import java.awt.*;
-import java.util.*;
-import java.util.concurrent.*;
 
 import javax.swing.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import software.amazon.awssdk.services.lambda.LambdaClient;
-import software.amazon.awssdk.core.SdkBytes;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
-import software.amazon.awssdk.services.lambda.model.InvokeRequest;
-import software.amazon.awssdk.services.lambda.model.InvokeResponse;
-
-import aws.Input;
 import galton_board.*;
 
 public class SimulationPanel extends JPanel {
