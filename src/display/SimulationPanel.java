@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
 import software.amazon.awssdk.services.lambda.model.InvokeResponse;
 
@@ -117,11 +119,30 @@ public class SimulationPanel extends JPanel {
 			e.printStackTrace();
 		}
 		
-		LambdaClient client = LambdaClient.create();
+		LambdaClient client = LambdaClient.builder()
+			    .region(Region.US_EAST_2)
+			    .httpClientBuilder(UrlConnectionHttpClient.builder())
+			    .build();
 		
 		InvokeRequest req = InvokeRequest.builder()
-			    .functionName("GaltonBoardLambda")
+			    .functionName("runGaltonBoardBatch")
 			    .payload(SdkBytes.fromUtf8String(json))
 			    .build();
+		
+		InvokeResponse res = client.invoke(req);
+		String responseJson = res.payload().asUtf8String();
+		
+		System.out.println(responseJson);
+		
+		int[] newBins = null;
+		try {
+		    newBins = mapper.readValue(responseJson, int[].class);
+		} catch (Exception e) {
+		    e.printStackTrace();
+		    return;
+		}
+		
+		bins = newBins;
+		visualization.updateComponent(bins);
 	}
 }

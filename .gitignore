@@ -2,5 +2,4 @@
 .classpath
 .settings
 bin
-src/module-info.java
 /target/
