@@ -93,4 +93,17 @@ public class GaltonBoard {
 		
 		return board.runBatch(in.balls, in.bins);
 	}
+	
+	public Input getInput(int batchSize, int[] bins) {
+		Input in = new Input();
+		
+		in.adj = adj;
+		in.biasJump = biasJump;
+		in.drift = drift;
+		in.clamp = clamp;
+		in.balls = batchSize;
+		in.bins = bins;
+		
+		return in;
+	}
 }

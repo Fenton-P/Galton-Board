@@ -4,11 +4,20 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.lambda.model.InvokeRequest;
+import software.amazon.awssdk.services.lambda.model.InvokeResponse;
+
+import aws.Input;
 import galton_board.GaltonBoard;
 
 public class SimulationPanel extends JPanel {
 	private static final long serialVersionUID = -2346382374587904033L;
-
+	
 	private GaltonBoard board;
 	private LinePlot visualization;
 	private InputPanel inputPanel;
@@ -17,7 +26,7 @@ public class SimulationPanel extends JPanel {
 	private Thread batchThread;
 	private int tempBatchSize, batchCount;
 	private long batchDelay;
-	
+
 	public SimulationPanel(GaltonBoard board, LinePlot visualization) {
 		this.board = board;
 		this.visualization = visualization;
@@ -97,6 +106,22 @@ public class SimulationPanel extends JPanel {
 	}
 	
 	public void runAWSBatches(int batchSize, int count) {
+		Input in = board.getInput(batchSize, bins);
+		ObjectMapper mapper = new ObjectMapper();
+		String json = "";
 		
+		try {
+			json = mapper.writeValueAsString(in);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		LambdaClient client = LambdaClient.create();
+		
+		InvokeRequest req = InvokeRequest.builder()
+			    .functionName("GaltonBoardLambda")
+			    .payload(SdkBytes.fromUtf8String(json))
+			    .build();
 	}
 }
